@@ -85,6 +85,7 @@ function Countries({ selectedCountry, onSelectCountry }) {
 
 export default function HomePage() {
     const [section, setSection] = useState('overview');
+    const [countriesOpen, setCountriesOpen] = useState(false);
     const [selectedCode, setSelectedCode] = useState(COUNTRIES[0].code);
     const selectedCountry = COUNTRIES.find((country) => country.code === selectedCode) ?? COUNTRIES[0];
 
@@ -97,31 +98,46 @@ export default function HomePage() {
                         className={`nav-item${section === 'overview' ? ' is-active' : ''}`}
                         type="button"
                         aria-current={section === 'overview' ? 'page' : undefined}
-                        onClick={() => setSection('overview')}
+                        onClick={() => {
+                            setSection('overview');
+                            setCountriesOpen(false);
+                        }}
                     >
                         Overview
                     </button>
-                    <button
-                        className={`nav-item${section === 'countries' ? ' is-active' : ''}`}
-                        type="button"
-                        aria-current={section === 'countries' ? 'page' : undefined}
-                        onClick={() => setSection('countries')}
-                    >
-                        Countries
-                    </button>
-                    {section === 'countries' && (
-                        <label className="sidebar-country-select">
-                            <span>Choose a country</span>
-                            <select
-                                value={selectedCode}
-                                onChange={(event) => setSelectedCode(event.target.value)}
-                            >
+                    <div className="nav-group">
+                        <button
+                            className={`nav-item nav-parent${section === 'countries' ? ' is-active' : ''}`}
+                            type="button"
+                            aria-current={section === 'countries' ? 'page' : undefined}
+                            aria-expanded={countriesOpen}
+                            onClick={() => {
+                                setSection('countries');
+                                setCountriesOpen((open) => !open);
+                            }}
+                        >
+                            <span>Countries</span>
+                            <span className={`nav-chevron${countriesOpen ? ' is-open' : ''}`} aria-hidden="true" />
+                        </button>
+                        {countriesOpen && (
+                            <div className="country-subnav" role="group" aria-label="Country selection">
                                 {COUNTRIES.map((country) => (
-                                    <option key={country.code} value={country.code}>{country.name}</option>
+                                    <button
+                                        className={`nav-item country-option${country.code === selectedCode ? ' is-selected' : ''}`}
+                                        key={country.code}
+                                        type="button"
+                                        aria-pressed={country.code === selectedCode}
+                                        onClick={() => {
+                                            setSection('countries');
+                                            setSelectedCode(country.code);
+                                        }}
+                                    >
+                                        {country.name}
+                                    </button>
                                 ))}
-                            </select>
-                        </label>
-                    )}
+                            </div>
+                        )}
+                    </div>
                 </nav>
             </aside>
 

@@ -4,9 +4,9 @@
 
 :root {
     color-scheme: light;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #23313a;
-    background: #f3f5f4;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    color: #28283b;
+    background: #e9edf8;
 }
 
 body {
@@ -29,14 +29,14 @@ select {
     width: 220px;
     flex: 0 0 220px;
     padding: 28px 16px;
-    background: #e8edeb;
-    border-right: 1px solid #d6ddda;
+    background: #fff;
+    border-right: 1px solid #dfe3ef;
 }
 
 .app-title {
     display: block;
     margin: 0 8px 34px;
-    color: #263942;
+    color: #302f4b;
     font-size: 16px;
     font-weight: 700;
     text-decoration: none;
@@ -44,7 +44,7 @@ select {
 
 .side-nav {
     display: grid;
-    gap: 5px;
+    gap: 4px;
 }
 
 .nav-item {
@@ -53,19 +53,61 @@ select {
     border: 0;
     border-radius: 4px;
     background: transparent;
-    color: #53636b;
+    color: #5f6475;
     text-align: left;
     cursor: pointer;
 }
 
 .nav-item:hover,
 .nav-item.is-active {
-    background: #d7e3df;
-    color: #1d5e59;
+    background: #efeffb;
+    color: #4b49ac;
 }
 
 .nav-item.is-active {
     font-weight: 700;
+}
+
+.nav-group {
+    display: grid;
+    gap: 4px;
+}
+
+.nav-parent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-chevron {
+    width: 7px;
+    height: 7px;
+    margin: -4px 4px 0 8px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 120ms ease;
+}
+
+.nav-chevron.is-open {
+    margin-top: 4px;
+    transform: rotate(225deg);
+}
+
+.country-subnav {
+    display: grid;
+    gap: 3px;
+    margin-left: 12px;
+}
+
+.country-option {
+    padding-left: 20px;
+}
+
+.country-option.is-selected {
+    background: #efeffb;
+    color: #4b49ac;
+    font-weight: 600;
 }
 
 .main-content {
@@ -85,41 +127,22 @@ select {
 
 .page-label {
     margin: 0 0 7px;
-    color: #74828a;
+    color: #777a91;
     font-size: 11px;
     letter-spacing: 0.08em;
 }
 
 .page-header h1 {
     margin: 0;
-    color: #23313a;
+    color: #302f4b;
     font-size: 28px;
     font-weight: 600;
-}
-
-.sidebar-country-select {
-    display: grid;
-    gap: 7px;
-    margin: 4px 8px 0 22px;
-    color: #5a6970;
-    font-size: 11px;
-}
-
-.sidebar-country-select select {
-    width: 100%;
-    min-width: 0;
-    padding: 8px 24px 8px 8px;
-    border: 1px solid #c8d1cd;
-    border-radius: 4px;
-    background: #fff;
-    color: #25343b;
-    font-size: 12px;
 }
 
 .overview-section,
 .globe-panel,
 .country-details {
-    border: 1px solid #dbe1de;
+    border: 1px solid #dfe3ef;
     border-radius: 5px;
     background: #fff;
 }
@@ -141,7 +164,7 @@ select {
 .section-heading p,
 .sample-note {
     margin: 0;
-    color: #718087;
+    color: #72768b;
     font-size: 13px;
 }
 
@@ -158,19 +181,19 @@ select {
 .country-table th,
 .country-table td {
     padding: 14px 12px;
-    border-bottom: 1px solid #e8ecea;
+    border-bottom: 1px solid #e9eaf2;
     white-space: nowrap;
 }
 
 .country-table thead th {
-    color: #697981;
+    color: #72768b;
     font-size: 12px;
     font-weight: 600;
 }
 
 .country-table tbody th,
 .country-table tbody td {
-    color: #34444c;
+    color: #3e4056;
     font-size: 14px;
     font-weight: 400;
 }
@@ -223,7 +246,7 @@ select {
 .globe-panel {
     min-height: 470px;
     padding: 10px;
-    background: #eaf0ef;
+    background: #f0f2fa;
 }
 
 .earth-canvas {
@@ -250,7 +273,7 @@ select {
 
 .selected-country {
     padding-bottom: 20px;
-    border-bottom: 1px solid #e4e9e6;
+    border-bottom: 1px solid #e7e8f0;
 }
 
 .selected-country .country-flag {
@@ -267,7 +290,7 @@ select {
 
 .selected-country p {
     margin: 0;
-    color: #78868c;
+    color: #777a91;
     font-size: 12px;
 }
 
@@ -280,24 +303,24 @@ select {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    border-bottom: 1px solid #edf0ee;
+    border-bottom: 1px solid #ececf3;
     font-size: 13px;
 }
 
 .detail-row dt {
-    color: #6d7a80;
+    color: #74778d;
 }
 
 .detail-row dd {
     margin: 0;
-    color: #2c3b42;
+    color: #38394f;
     font-weight: 600;
     text-align: right;
 }
 
 .map-help {
     margin: 15px 0 0;
-    color: #74828a;
+    color: #74778d;
     font-size: 12px;
     line-height: 1.5;
 }
@@ -335,7 +358,7 @@ select {
         width: 100%;
         padding: 14px 18px 10px;
         border-right: 0;
-        border-bottom: 1px solid #d6ddda;
+        border-bottom: 1px solid #dfe3ef;
     }
 
     .app-title {
@@ -346,9 +369,8 @@ select {
         grid-template-columns: 1fr 1fr;
     }
 
-    .sidebar-country-select {
+    .nav-group {
         grid-column: 2;
-        margin-left: 0;
     }
 
     .main-content {
