@@ -1,0 +1,45 @@
+
+import Button from './button'
+
+
+function Header() { /*header function */
+return <h1>Header</h1>; 
+}
+
+function Footer() { /*footer function */
+    return <h1>Footer</h1>;
+}
+
+function Sidebar() { /*sidebar function */
+
+    return (
+        <div>
+            <h1>Sidebar</h1>                    
+            <Sidebar_ />
+            <h3>middle text</h3>
+            <Sidebar_ side="3rd line" />
+            <Button/>
+        </div>
+    );
+}
+
+function Sidebar_({side}) { /*sidebar function */
+    return <h3>{side ? side : "Default Sidebar Text"}</h3>;
+}
+
+function Sidebar2() { /*sidebar function */
+    return <h3>Sidebar2</h3>;
+}
+
+export default function HomePage() { /*homepage function */
+    return (
+        <div>
+            <Header /> 
+            <Sidebar /> 
+            <Footer /> 
+        </div>  
+    );
+}
+
+//root.render(<HomePage />);
+
