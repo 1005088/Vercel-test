@@ -84,23 +84,8 @@ function createFlagTexture(country) {
     canvas.width = 96;
     canvas.height = 64;
     const context = canvas.getContext('2d');
-    const [first, second, third] = country.flagColors;
-
-    if (country.flagDirection === 'vertical') {
-        context.fillStyle = first;
-        context.fillRect(0, 0, 32, 64);
-        context.fillStyle = second;
-        context.fillRect(32, 0, 32, 64);
-        context.fillStyle = third;
-        context.fillRect(64, 0, 32, 64);
-    } else {
-        context.fillStyle = first;
-        context.fillRect(0, 0, 96, 22);
-        context.fillStyle = second;
-        context.fillRect(0, 22, 96, 21);
-        context.fillStyle = third;
-        context.fillRect(0, 43, 96, 21);
-    }
+    context.fillStyle = country.flagColor;
+    context.fillRect(0, 0, 96, 64);
 
     context.font = 'bold 22px Arial';
     context.textAlign = 'center';

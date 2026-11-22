@@ -97,20 +97,23 @@ select {
     font-weight: 600;
 }
 
-.country-select-label {
+.sidebar-country-select {
     display: grid;
-    gap: 6px;
+    gap: 7px;
+    margin: 4px 8px 0 22px;
     color: #5a6970;
-    font-size: 12px;
+    font-size: 11px;
 }
 
-.country-select-label select {
-    min-width: 180px;
-    padding: 9px 32px 9px 10px;
+.sidebar-country-select select {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 24px 8px 8px;
     border: 1px solid #c8d1cd;
     border-radius: 4px;
     background: #fff;
     color: #25343b;
+    font-size: 12px;
 }
 
 .overview-section,
@@ -194,15 +197,15 @@ select {
 }
 
 .flag-a {
-    background: linear-gradient(to bottom, #315d9b 0 33%, #fff 33% 66%, #d84c4c 66%);
+    background: #315d9b;
 }
 
 .flag-b {
-    background: linear-gradient(to right, #25835a 0 33%, #fff 33% 66%, #e88b42 66%);
+    background: #25835a;
 }
 
 .flag-c {
-    background: linear-gradient(to bottom, #262626 0 33%, #c84949 33% 66%, #e6c45a 66%);
+    background: #c84949;
 }
 
 .sample-note {
@@ -292,37 +295,6 @@ select {
     text-align: right;
 }
 
-.map-key {
-    margin-top: 23px;
-}
-
-.map-key h3 {
-    margin: 0 0 8px;
-    color: #6d7a80;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.map-key-item {
-    width: 100%;
-    padding: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 0;
-    background: transparent;
-    color: #46565e;
-    text-align: left;
-    cursor: pointer;
-}
-
-.map-key-item.is-selected {
-    color: #1d5e59;
-    font-weight: 700;
-}
-
 .map-help {
     margin: 15px 0 0;
     color: #74828a;
@@ -372,6 +344,11 @@ select {
 
     .side-nav {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .sidebar-country-select {
+        grid-column: 2;
+        margin-left: 0;
     }
 
     .main-content {

@@ -24,9 +24,9 @@ function Overview() {
                     <thead>
                         <tr>
                             <th scope="col">Country</th>
-                            <th scope="col">Population</th>
-                            <th scope="col">Area (km²)</th>
-                            <th scope="col">GDP (USD bn)</th>
+                            {COUNTRIES[0].metrics.map((metric) => (
+                                <th scope="col" key={metric.label}>{metric.label}</th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
@@ -77,21 +77,7 @@ function Countries({ selectedCountry, onSelectCountry }) {
                         </div>
                     ))}
                 </dl>
-                <div className="map-key">
-                    <h3>Map flags</h3>
-                    {COUNTRIES.map((country) => (
-                        <button
-                            className={`map-key-item${country.code === selectedCountry.code ? ' is-selected' : ''}`}
-                            key={country.code}
-                            type="button"
-                            onClick={() => onSelectCountry(country.code)}
-                        >
-                            <CountryFlag country={country} />
-                            <span>{country.name}</span>
-                        </button>
-                    ))}
-                </div>
-                <p className="map-help">Drag the globe to rotate it, or select a flag to view that country.</p>
+                <p className="map-help">Drag the globe to rotate it, or select a flag marker to view that country.</p>
             </aside>
         </section>
     );
@@ -123,18 +109,9 @@ export default function HomePage() {
                     >
                         Countries
                     </button>
-                </nav>
-            </aside>
-
-            <main className="main-content">
-                <header className="page-header">
-                    <div>
-                        <p className="page-label">DASHBOARD</p>
-                        <h1>{section === 'overview' ? 'Overview' : 'Countries'}</h1>
-                    </div>
                     {section === 'countries' && (
-                        <label className="country-select-label">
-                            <span>Country</span>
+                        <label className="sidebar-country-select">
+                            <span>Choose a country</span>
                             <select
                                 value={selectedCode}
                                 onChange={(event) => setSelectedCode(event.target.value)}
@@ -145,6 +122,15 @@ export default function HomePage() {
                             </select>
                         </label>
                     )}
+                </nav>
+            </aside>
+
+            <main className="main-content">
+                <header className="page-header">
+                    <div>
+                        <p className="page-label">DASHBOARD</p>
+                        <h1>{section === 'overview' ? 'Overview' : 'Countries'}</h1>
+                    </div>
                 </header>
 
                 {section === 'overview' ? (
