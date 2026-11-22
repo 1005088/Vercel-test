@@ -1,8 +1,8 @@
 import '../styles.css';
 
 export const metadata = {
-  title: 'Terra Atlas | Earth Terrain',
-  description: 'Explore a low-resolution interactive topographic view of Earth.',
+  title: 'Country Dashboard',
+  description: 'An overview of demo country data with an interactive globe.',
 };
  
 export default function RootLayout({ children }) {

@@ -41,8 +41,8 @@ function terrainNoise(longitude, latitude) {
 
 function createTerrainTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 256;
+    canvas.width = 360;
+    canvas.height = 180;
     const context = canvas.getContext('2d');
     const image = context.createImageData(canvas.width, canvas.height);
 
@@ -76,23 +76,60 @@ function createTerrainTexture() {
     context.putImageData(image, 0, 0);
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
     return texture;
 }
 
-function createStars() {
-    const positions = new Float32Array(900 * 3);
-    for (let i = 0; i < positions.length; i += 1) {
-        positions[i] = (Math.random() - 0.5) * 45;
+function createFlagTexture(country) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 96;
+    canvas.height = 64;
+    const context = canvas.getContext('2d');
+    const [first, second, third] = country.flagColors;
+
+    if (country.flagDirection === 'vertical') {
+        context.fillStyle = first;
+        context.fillRect(0, 0, 32, 64);
+        context.fillStyle = second;
+        context.fillRect(32, 0, 32, 64);
+        context.fillStyle = third;
+        context.fillRect(64, 0, 32, 64);
+    } else {
+        context.fillStyle = first;
+        context.fillRect(0, 0, 96, 22);
+        context.fillStyle = second;
+        context.fillRect(0, 22, 96, 21);
+        context.fillStyle = third;
+        context.fillRect(0, 43, 96, 21);
     }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const material = new THREE.PointsMaterial({ color: 0x9ab8d2, size: 0.035, transparent: true, opacity: 0.75 });
-    return new THREE.Points(geometry, material);
+
+    context.font = 'bold 22px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.lineWidth = 3;
+    context.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+    context.fillStyle = '#ffffff';
+    context.strokeText(country.code, 48, 32);
+    context.fillText(country.code, 48, 32);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
 }
 
-export default function EarthGlobe() {
+function countryPosition(country) {
+    const longitude = THREE.MathUtils.degToRad(180 - country.longitude);
+    const latitude = THREE.MathUtils.degToRad(country.latitude);
+    const radius = 1.025;
+    return new THREE.Vector3(
+        -Math.cos(longitude) * Math.cos(latitude) * radius,
+        Math.sin(latitude) * radius,
+        Math.sin(longitude) * Math.cos(latitude) * radius,
+    );
+}
+
+export default function EarthGlobe({ countries, selectedCountry, onSelectCountry }) {
     const hostRef = useRef(null);
+    const earthGroupRef = useRef(null);
 
     useEffect(() => {
         const host = hostRef.current;
@@ -100,7 +137,7 @@ export default function EarthGlobe() {
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-        camera.position.set(0, 0, 3.55);
+        camera.position.set(0, 0, 3.25);
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -108,35 +145,54 @@ export default function EarthGlobe() {
         renderer.setClearColor(0x000000, 0);
         host.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0x9ab8d7, 1.15));
-        const sunlight = new THREE.DirectionalLight(0xffedcf, 2.4);
+        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+        const sunlight = new THREE.DirectionalLight(0xffffff, 1.8);
         sunlight.position.set(-4, 2.5, 5);
         scene.add(sunlight);
 
         const earthGroup = new THREE.Group();
+        earthGroupRef.current = earthGroup;
         scene.add(earthGroup);
+
         const texture = createTerrainTexture();
-        const geometry = new THREE.SphereGeometry(1, 96, 64);
+        const geometry = new THREE.SphereGeometry(1, 64, 48);
         const positions = geometry.attributes.position;
         const uvs = geometry.attributes.uv;
-
         for (let i = 0; i < positions.count; i += 1) {
             const longitude = uvs.getX(i) * 360 - 180;
             const latitude = uvs.getY(i) * 180 - 90;
-            const land = isLand(longitude, latitude);
-            const relief = land ? Math.max(0, terrainNoise(longitude, latitude)) * 0.012 : 0;
-            const vertex = new THREE.Vector3().fromBufferAttribute(positions, i).normalize().multiplyScalar(1 + relief);
+            const relief = isLand(longitude, latitude)
+                ? Math.max(0, terrainNoise(longitude, latitude)) * 0.01
+                : 0;
+            const vertex = new THREE.Vector3()
+                .fromBufferAttribute(positions, i)
+                .normalize()
+                .multiplyScalar(1 + relief);
             positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
         geometry.computeVertexNormals();
 
-        const earthMaterial = new THREE.MeshStandardMaterial({
-            map: texture,
-            roughness: 0.92,
-            metalness: 0.02,
+        const earthMaterial = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.95 });
+        const earthMesh = new THREE.Mesh(geometry, earthMaterial);
+        earthGroup.add(earthMesh);
+
+        const flagTextures = [];
+        const flagSprites = countries.map((country) => {
+            const flagTexture = createFlagTexture(country);
+            flagTextures.push(flagTexture);
+            const material = new THREE.SpriteMaterial({
+                map: flagTexture,
+                transparent: true,
+                depthTest: true,
+                depthWrite: false,
+            });
+            const sprite = new THREE.Sprite(material);
+            sprite.position.copy(countryPosition(country));
+            sprite.scale.set(0.2, 0.14, 1);
+            sprite.userData.countryCode = country.code;
+            earthGroup.add(sprite);
+            return sprite;
         });
-        earthGroup.add(new THREE.Mesh(geometry, earthMaterial));
-        scene.add(createStars());
 
         const resize = () => {
             const { width, height } = host.getBoundingClientRect();
@@ -149,36 +205,57 @@ export default function EarthGlobe() {
         resizeObserver.observe(host);
         resize();
 
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
         let dragging = false;
+        let pointerMoved = false;
         let previousX = 0;
         let previousY = 0;
+
         const onPointerDown = (event) => {
             dragging = true;
+            pointerMoved = false;
             previousX = event.clientX;
             previousY = event.clientY;
             renderer.domElement.setPointerCapture(event.pointerId);
         };
         const onPointerMove = (event) => {
             if (!dragging) return;
-            earthGroup.rotation.y += (event.clientX - previousX) * 0.006;
-            earthGroup.rotation.x += (event.clientY - previousY) * 0.004;
+            const deltaX = event.clientX - previousX;
+            const deltaY = event.clientY - previousY;
+            if (Math.abs(deltaX) + Math.abs(deltaY) > 2) pointerMoved = true;
+            earthGroup.rotation.y += deltaX * 0.006;
+            earthGroup.rotation.x += deltaY * 0.004;
             earthGroup.rotation.x = Math.max(-1.1, Math.min(1.1, earthGroup.rotation.x));
             previousX = event.clientX;
             previousY = event.clientY;
         };
-        const onPointerUp = () => { dragging = false; };
+        const onPointerUp = (event) => {
+            if (!dragging) return;
+            dragging = false;
+            if (pointerMoved) return;
+
+            const bounds = renderer.domElement.getBoundingClientRect();
+            pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+            pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+            scene.updateMatrixWorld(true);
+            raycaster.setFromCamera(pointer, camera);
+            const [hit] = raycaster.intersectObjects([earthMesh, ...flagSprites], false);
+            if (hit?.object.userData.countryCode) {
+                onSelectCountry(hit.object.userData.countryCode);
+            }
+        };
         renderer.domElement.addEventListener('pointerdown', onPointerDown);
         renderer.domElement.addEventListener('pointermove', onPointerMove);
         renderer.domElement.addEventListener('pointerup', onPointerUp);
         renderer.domElement.addEventListener('pointercancel', onPointerUp);
 
         let frameId;
-        const animate = () => {
-            frameId = window.requestAnimationFrame(animate);
-            if (!dragging) earthGroup.rotation.y += 0.0007;
+        const render = () => {
+            frameId = window.requestAnimationFrame(render);
             renderer.render(scene, camera);
         };
-        animate();
+        render();
 
         return () => {
             window.cancelAnimationFrame(frameId);
@@ -190,16 +267,25 @@ export default function EarthGlobe() {
             geometry.dispose();
             texture.dispose();
             earthMaterial.dispose();
-            scene.traverse((object) => {
-                if (object.isPoints) {
-                    object.geometry.dispose();
-                    object.material.dispose();
-                }
-            });
+            flagSprites.forEach((sprite) => sprite.material.dispose());
+            flagTextures.forEach((flagTexture) => flagTexture.dispose());
             renderer.dispose();
             host.removeChild(renderer.domElement);
+            earthGroupRef.current = null;
         };
-    }, []);
+    }, [countries, onSelectCountry]);
 
-    return <div className="earth-canvas" ref={hostRef} role="img" aria-label="Interactive low-resolution topographic globe of Earth" />;
+    useEffect(() => {
+        if (!earthGroupRef.current) return;
+        earthGroupRef.current.rotation.y = THREE.MathUtils.degToRad(selectedCountry.longitude - 90);
+    }, [selectedCountry]);
+
+    return (
+        <div
+            className="earth-canvas"
+            ref={hostRef}
+            role="img"
+            aria-label={`Interactive globe with a flag marker for ${selectedCountry.name}`}
+        />
+    );
 }

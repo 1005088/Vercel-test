@@ -1,57 +1,158 @@
+'use client';
 
+import { useState } from 'react';
 import EarthGlobe from './earth-globe';
+import { COUNTRIES } from './countries';
 
-export default function HomePage() {
+function CountryFlag({ country }) {
     return (
-        <main className="earth-dashboard">
-            <header className="topbar">
-                <a className="brand" href="#" aria-label="Terra home">
-                    <span className="brand-mark">T</span>
-                    <span>TERRA<span className="brand-light">/ATLAS</span></span>
-                </a>
-                <div className="topbar-status"><span className="status-dot" /> PROCEDURAL TERRAIN MODEL</div>
-                <div className="topbar-date">EARTH SYSTEMS <span>·</span> 2026</div>
-            </header>
-
-            <section className="hero">
-                <div className="hero-copy">
-                    <div className="eyebrow"><span>01</span> PLANETARY OVERVIEW</div>
-                    <h1>One planet.<br /><em>Endless terrain.</em></h1>
-                    <p className="intro">Explore Earth’s living surface, from ocean basins to the highest continental ranges.</p>
-                    <div className="coordinates">
-                        <div><span className="coordinate-label">REFERENCE</span><strong>WGS 84</strong></div>
-                        <div><span className="coordinate-label">SURFACE</span><strong>TOPOGRAPHIC</strong></div>
-                        <div><span className="coordinate-label">INTERACTION</span><strong>DRAG TO ROTATE</strong></div>
-                    </div>
-                </div>
-
-                <div className="globe-stage">
-                    <div className="orbit orbit-one" />
-                    <div className="orbit orbit-two" />
-                    <div className="globe-halo" />
-                    <EarthGlobe />
-                    <div className="globe-caption"><span className="status-dot" /> EARTH / 01</div>
-                    <div className="globe-crosshair">+</div>
-                </div>
-
-                <aside className="terrain-panel">
-                    <div className="panel-kicker">SURFACE PROFILE <span>01—06</span></div>
-                    <h2>Global relief</h2>
-                    <p>Land elevation and ocean depth, rendered as a color-banded terrain model.</p>
-                    <div className="legend">
-                        <div className="legend-row"><span className="swatch swatch-high" /><span>HIGH RELIEF</span><b>8,849 m</b></div>
-                        <div className="legend-row"><span className="swatch swatch-mid" /><span>LAND MASS</span><b>0 m</b></div>
-                        <div className="legend-row"><span className="swatch swatch-low" /><span>OCEAN FLOOR</span><b>−10,994 m</b></div>
-                    </div>
-                    <div className="panel-foot"><span>MODEL TYPE</span><b>ILLUSTRATIVE / LOW-RES</b></div>
-                </aside>
-            </section>
-
-            <footer className="page-footer">
-                <span>THE BLUE PLANET <span className="footer-divider">/</span> TERRAIN STUDY</span>
-                <span>ROTATE THE GLOBE TO EXPLORE <span className="footer-arrow">↗</span></span>
-            </footer>
-        </main>
+        <span className={`country-flag flag-${country.code.toLowerCase()}`} aria-hidden="true">
+            {country.code}
+        </span>
     );
 }
 
+function Overview() {
+    return (
+        <section className="overview-section" aria-labelledby="overview-heading">
+            <div className="section-heading">
+                <h2 id="overview-heading">All countries</h2>
+                <p>Example values for the three demo countries.</p>
+            </div>
+            <div className="table-scroll">
+                <table className="country-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Country</th>
+                            <th scope="col">Population</th>
+                            <th scope="col">Area (km²)</th>
+                            <th scope="col">GDP (USD bn)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {COUNTRIES.map((country) => (
+                            <tr key={country.code}>
+                                <th scope="row">
+                                    <span className="table-country">
+                                        <CountryFlag country={country} />
+                                        {country.name}
+                                    </span>
+                                </th>
+                                {country.metrics.map((metric) => (
+                                    <td key={metric.label}>{metric.value}</td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <p className="sample-note">Sample data and placeholder flags. Replace them with verified country data.</p>
+        </section>
+    );
+}
+
+function Countries({ selectedCountry, onSelectCountry }) {
+    return (
+        <section className="countries-section" aria-label="Country map and details">
+            <div className="globe-panel">
+                <EarthGlobe
+                    countries={COUNTRIES}
+                    selectedCountry={selectedCountry}
+                    onSelectCountry={onSelectCountry}
+                />
+            </div>
+            <aside className="country-details">
+                <div className="selected-country">
+                    <CountryFlag country={selectedCountry} />
+                    <div>
+                        <h2>{selectedCountry.name}</h2>
+                        <p>Demo country · {selectedCountry.code}</p>
+                    </div>
+                </div>
+                <dl className="detail-list">
+                    {selectedCountry.metrics.map((metric) => (
+                        <div className="detail-row" key={metric.label}>
+                            <dt>{metric.label}</dt>
+                            <dd>{metric.value}</dd>
+                        </div>
+                    ))}
+                </dl>
+                <div className="map-key">
+                    <h3>Map flags</h3>
+                    {COUNTRIES.map((country) => (
+                        <button
+                            className={`map-key-item${country.code === selectedCountry.code ? ' is-selected' : ''}`}
+                            key={country.code}
+                            type="button"
+                            onClick={() => onSelectCountry(country.code)}
+                        >
+                            <CountryFlag country={country} />
+                            <span>{country.name}</span>
+                        </button>
+                    ))}
+                </div>
+                <p className="map-help">Drag the globe to rotate it, or select a flag to view that country.</p>
+            </aside>
+        </section>
+    );
+}
+
+export default function HomePage() {
+    const [section, setSection] = useState('overview');
+    const [selectedCode, setSelectedCode] = useState(COUNTRIES[0].code);
+    const selectedCountry = COUNTRIES.find((country) => country.code === selectedCode) ?? COUNTRIES[0];
+
+    return (
+        <div className="app-shell">
+            <aside className="sidebar">
+                <a className="app-title" href="/" aria-label="Country dashboard home">Country dashboard</a>
+                <nav className="side-nav" aria-label="Main navigation">
+                    <button
+                        className={`nav-item${section === 'overview' ? ' is-active' : ''}`}
+                        type="button"
+                        aria-current={section === 'overview' ? 'page' : undefined}
+                        onClick={() => setSection('overview')}
+                    >
+                        Overview
+                    </button>
+                    <button
+                        className={`nav-item${section === 'countries' ? ' is-active' : ''}`}
+                        type="button"
+                        aria-current={section === 'countries' ? 'page' : undefined}
+                        onClick={() => setSection('countries')}
+                    >
+                        Countries
+                    </button>
+                </nav>
+            </aside>
+
+            <main className="main-content">
+                <header className="page-header">
+                    <div>
+                        <p className="page-label">DASHBOARD</p>
+                        <h1>{section === 'overview' ? 'Overview' : 'Countries'}</h1>
+                    </div>
+                    {section === 'countries' && (
+                        <label className="country-select-label">
+                            <span>Country</span>
+                            <select
+                                value={selectedCode}
+                                onChange={(event) => setSelectedCode(event.target.value)}
+                            >
+                                {COUNTRIES.map((country) => (
+                                    <option key={country.code} value={country.code}>{country.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                    )}
+                </header>
+
+                {section === 'overview' ? (
+                    <Overview />
+                ) : (
+                    <Countries selectedCountry={selectedCountry} onSelectCountry={setSelectedCode} />
+                )}
+            </main>
+        </div>
+    );
+}
